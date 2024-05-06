@@ -19,6 +19,10 @@ app.get('/', async (req, res) => {
 
 });
 
+app.get('/health', (req, res) => {
+	res.send('OK');
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {

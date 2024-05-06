@@ -16,6 +16,8 @@ RUN apk add --no-cache --virtual .build-deps \
     pango \
     giflib
 
+HEALTHCHECK --interval=1m --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -q http://localhost:5000/health || exit 1
 
 RUN npm install
 

@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 LOG="/mnt/us/kindle.log"
-SERVER_ADDRESS="http://192.168.1.3:5000"
+SERVER_ADDRESS="http://192.168.1.100:5010"
 VERBOSE=0
 
 SLEEP_TIME=1800 # seconds
@@ -137,15 +137,6 @@ while [ "$SHOULD_LOOP" -eq 1 ]; do
     sleep 1
     fbink -g file=image.png
   fi
-
-    #  # Main loop - just get random local server website for now
-    #  DATA=$(curl http://inanis.local -m 5)
-    #  if [ -z "$DATA" ]; then
-    #    log "Failed to get Data"
-    #    log "Wifi status: $(wifi_status)"
-    #    log "cmState: $(lipc-get-prop com.lab126.wifid cmState)"
-    #  fi
-    #  log "Data: '$DATA'"
 
   # Subtract 5 seconds to account for the time taken to wake up
   PREDICTED_WAKEUP_TIME=$(($(date +%s) + SLEEP_TIME - 5))
