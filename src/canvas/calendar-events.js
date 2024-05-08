@@ -67,7 +67,7 @@ const drawEvents = (ctx, events, basePos, width, height, title) => {
 	const fontSize = 40;
 	const lineHeight = 50;
 
-	ctx.font = `semibold ${fontSize}px Quicksand`;
+	ctx.font = `semibold ${fontSize}px Quicksand, Noto Emoji`;
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'top';
 	ctx.fillStyle = '#000';
@@ -113,14 +113,14 @@ const drawEvents = (ctx, events, basePos, width, height, title) => {
 		let currentX = basePos[0] + padding;
 		ctx.fillStyle = '#555';
 		ctx.textBaseline = 'middle';
-		ctx.font = `semibold ${fontSize * 3 / 4}px Quicksand`;
+		ctx.font = `semibold ${fontSize * 3 / 4}px Quicksand, Noto Emoji`;
 		const measured = ctx.measureText(startStr);
 		ctx.fillText(startStr, currentX, currentY + lineHeight / 2);
 		currentX += measured.width + padding;
 
 		ctx.save();
 		ctx.textBaseline = 'top';
-		ctx.font = `semibold ${fontSize}px Quicksand`;
+		ctx.font = `semibold ${fontSize}px Quicksand, Noto Emoji`;
 		ctx.fillStyle = '#000';
 		ctx.beginPath();
 		ctx.rect(currentX, currentY, width - padding * 2 - measured.width, lineHeight);
