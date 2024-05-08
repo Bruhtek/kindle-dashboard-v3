@@ -20,7 +20,7 @@ export default async function makeDashboard(rotated, userActionCount, batteryLev
 	drawBounds(ctx);
 	drawCalendar(ctx);
 	drawMetaInfo(ctx, userActionCount, batteryLevel);
-	// await drawCalendarEvents(ctx);
+	await drawCalendarEvents(ctx);
 	await drawWeather(ctx);
 
 	if (!rotated) {

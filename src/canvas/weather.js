@@ -71,7 +71,7 @@ export const drawWeather = async (ctx) => {
 	const weather = await getWeather();
 
 	const forecastHours = 10;
-	const padding = 10;
+	const padding = 15;
 
 	const basePos = [0, HEIGHT * 2 / 3];
 	const width = WIDTH / forecastHours - padding * 2;
@@ -80,10 +80,8 @@ export const drawWeather = async (ctx) => {
 
 	const tempIcon = await loadImage(path.join(__dirname, '../images/temperature.png'));
 	const rainIcon = await loadImage(path.join(__dirname, '../images/rain.png'));
-	const humidityIcon = await loadImage(path.join(__dirname, '../images/humidity.png'));
-	const windIcon = await loadImage(path.join(__dirname, '../images/wind.png'));
 
-	basePos[1] += 20;
+	const textCenter = HEIGHT / 9 * 2;
 
 	for (const forecast of weather) {
 		if (i >= forecastHours) {
@@ -95,11 +93,11 @@ export const drawWeather = async (ctx) => {
 		const image = await loadImage(`https://github.com/metno/weathericons/blob/main/weather/png/${forecast.weather}.png?raw=true`);
 
 		ctx.shadowColor = '#000';
-		for (let x = -1; x <= 1; x++) {
-			for (let y = -1; y <= 1; y++) {
+		for (let x = -2; x <= 2; x++) {
+			for (let y = -2; y <= 2; y++) {
 				ctx.shadowOffsetX = x;
 				ctx.shadowOffsetY = y;
-				ctx.drawImage(image, basePos[0] + padding + i * (width + padding * 2), basePos[1] + padding, width, width);
+				ctx.drawImage(image, basePos[0] + padding / 2 + i * (width + padding * 2), basePos[1] + padding, width + padding, width + padding);
 			}
 		}
 
@@ -112,62 +110,35 @@ export const drawWeather = async (ctx) => {
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textAlign = 'right';
 		ctx.textBaseline = 'top';
-		ctx.fillText(hour, basePos[0] + width + padding + i * (width + padding * 2), basePos[1] + padding);
+		ctx.fillText(hour, basePos[0] + width + padding * 1.5 + i * (width + padding * 2), basePos[1] + padding / 2);
 
 
 		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
+		ctx.font = '60px "Tilt Neon"';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'bottom';
 		const temp = Math.round(forecast.temperature);
 		let measuredText = ctx.measureText(`${temp}`);
-		ctx.fillText(`${temp}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6));
-		ctx.drawImage(tempIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) - 40, 32, 32);
+		ctx.fillText(`${temp}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + textCenter);
+		ctx.drawImage(tempIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + textCenter - 60, 32, 32);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#333';
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textBaseline = 'top';
-		ctx.fillText('°C', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + (HEIGHT / 6) - 45);
+		ctx.fillText('°C', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + textCenter - 45);
 
 		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
+		ctx.font = '60px "Tilt Neon"';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
 		measuredText = ctx.measureText(`${forecast.precipitation}`);
-		ctx.fillText(`${forecast.precipitation}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6));
-		ctx.drawImage(rainIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) + padding, 32, 32);
+		ctx.fillText(`${forecast.precipitation}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + textCenter);
+		ctx.drawImage(rainIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + textCenter + 30, 32, 32);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#333';
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textBaseline = 'bottom';
-		ctx.fillText(' mm', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + (HEIGHT / 6) + 45);
-
-		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'top';
-		const humidity = Math.round(forecast.humidity);
-		measuredText = ctx.measureText(`${humidity}`);
-		ctx.fillText(`${humidity}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) + 45);
-		ctx.drawImage(humidityIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) + 45 + padding, 32, 32);
-		ctx.textAlign = 'left';
-		ctx.fillStyle = '#333';
-		ctx.font = '25px "Tilt Neon"';
-		ctx.textBaseline = 'bottom';
-		ctx.fillText('%', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + (HEIGHT / 6) + 90);
-
-		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'top';
-		measuredText = ctx.measureText(`${forecast.windSpeed}`);
-		ctx.fillText(`${forecast.windSpeed}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) + 90);
-		ctx.drawImage(windIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6) + 90 + padding, 32, 32);
-		ctx.textAlign = 'left';
-		ctx.fillStyle = '#333';
-		ctx.font = '25px "Tilt Neon"';
-		ctx.textBaseline = 'bottom';
-		ctx.fillText('mps', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + (HEIGHT / 6) + 135);
+		ctx.fillText(' mm', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + textCenter + 70);
 
 		i++;
 	}
