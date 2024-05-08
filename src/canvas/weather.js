@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
+import * as path from 'node:path';
+
+const __dirname = import.meta.dirname;
 
 dotenv.config();
 
@@ -47,6 +50,8 @@ const getWeather = async () => {
 			temperature: time.data.instant.details.air_temperature,
 			weather: time.data.next_1_hours?.summary?.symbol_code,
 			precipitation: time.data.next_1_hours?.details?.precipitation_amount,
+			humidity: time.data.instant.details.relative_humidity,
+			windSpeed: time.data.instant.details.wind_speed,
 		};
 
 		const date = dayjs.tz(timeData.time, 'UTC');
@@ -66,12 +71,17 @@ export const drawWeather = async (ctx) => {
 	const weather = await getWeather();
 
 	const forecastHours = 10;
-	const padding = 10;
+	const padding = 15;
 
 	const basePos = [0, HEIGHT * 2 / 3];
 	const width = WIDTH / forecastHours - padding * 2;
 
 	let i = 0;
+
+	const tempIcon = await loadImage(path.join(__dirname, '../images/temperature.png'));
+	const rainIcon = await loadImage(path.join(__dirname, '../images/rain.png'));
+
+	const textCenter = HEIGHT / 9 * 2;
 
 	for (const forecast of weather) {
 		if (i >= forecastHours) {
@@ -83,11 +93,11 @@ export const drawWeather = async (ctx) => {
 		const image = await loadImage(`https://github.com/metno/weathericons/blob/main/weather/png/${forecast.weather}.png?raw=true`);
 
 		ctx.shadowColor = '#000';
-		for (let x = -1; x <= 1; x++) {
-			for (let y = -1; y <= 1; y++) {
+		for (let x = -2; x <= 2; x++) {
+			for (let y = -2; y <= 2; y++) {
 				ctx.shadowOffsetX = x;
 				ctx.shadowOffsetY = y;
-				ctx.drawImage(image, basePos[0] + padding + i * (width + padding * 2), basePos[1] + padding, width, width);
+				ctx.drawImage(image, basePos[0] + padding / 2 + i * (width + padding * 2), basePos[1] + padding, width + padding, width + padding);
 			}
 		}
 
@@ -100,55 +110,35 @@ export const drawWeather = async (ctx) => {
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textAlign = 'right';
 		ctx.textBaseline = 'top';
-		ctx.fillText(hour, basePos[0] + width + padding + i * (width + padding * 2), basePos[1] + padding);
+		ctx.fillText(hour, basePos[0] + width + padding * 1.5 + i * (width + padding * 2), basePos[1] + padding / 2);
 
 
 		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
+		ctx.font = '60px "Tilt Neon"';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'bottom';
-		const measuredTemp = ctx.measureText(`${forecast.temperature}`);
-		ctx.fillText(`${forecast.temperature}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6));
+		const temp = Math.round(forecast.temperature);
+		let measuredText = ctx.measureText(`${temp}`);
+		ctx.fillText(`${temp}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + textCenter);
+		ctx.drawImage(tempIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + textCenter - 60, 32, 32);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#333';
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textBaseline = 'top';
-		ctx.fillText('°C', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredTemp.width / 2, basePos[1] + (HEIGHT / 6) - 45);
+		ctx.fillText('°C', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + textCenter - 45);
 
 		ctx.fillStyle = '#000';
-		ctx.font = '40px "Tilt Neon"';
+		ctx.font = '60px "Tilt Neon"';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
-		const measuredPrecipitation = ctx.measureText(`${forecast.precipitation}`);
-		ctx.fillText(`${forecast.precipitation}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + (HEIGHT / 6));
+		measuredText = ctx.measureText(`${forecast.precipitation}`);
+		ctx.fillText(`${forecast.precipitation}`, basePos[0] + width / 2 + padding + i * (width + padding * 2), basePos[1] + textCenter);
+		ctx.drawImage(rainIcon, basePos[0] + padding + i * (width + padding * 2), basePos[1] + textCenter + 30, 32, 32);
 		ctx.textAlign = 'left';
 		ctx.fillStyle = '#333';
 		ctx.font = '25px "Tilt Neon"';
 		ctx.textBaseline = 'bottom';
-		ctx.fillText('mm', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredPrecipitation.width / 2, basePos[1] + (HEIGHT / 6) + 45);
-
-		ctx.fillStyle = '#000';
-		ctx.font = '30px "Tilt Neon"';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'bottom';
-		const lines = getLines(ctx, weatherTitle, width);
-
-		const lineBaseY = HEIGHT - padding;
-
-		if (lines.length > 3) {
-			lines.length = 3;
-		}
-
-		if (lines.length === 1) {
-			ctx.fillText(lines[0], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY - 30);
-		} else if (lines.length === 2) {
-			ctx.fillText(lines[0], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY - 45);
-			ctx.fillText(lines[1], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY - 15);
-		} else {
-			ctx.fillText(lines[0], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY - 60);
-			ctx.fillText(lines[1], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY - 30);
-			ctx.fillText(lines[2], basePos[0] + width / 2 + padding + i * (width + padding * 2), lineBaseY);
-		}
+		ctx.fillText(' mm', basePos[0] + width / 2 + padding + i * (width + padding * 2) + measuredText.width / 2, basePos[1] + textCenter + 70);
 
 		i++;
 	}
